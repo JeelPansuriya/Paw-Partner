@@ -26,19 +26,19 @@ const userSchema = new Schema(
         },
         password: {
             type: String,
-            required: [true, 'Password is required']
+            required: function() { return !this.googleId; }
         },
         address: {
             type: String,
-            required: true
+            required: function() { return !this.googleId; }
         },
         contact: {
             type: String,
-            required: true
+            required: function() { return !this.googleId; }
         },
         role: {
             type: String,
-            enum: ["user", "shop owner", "adoption center", "admin"],
+            enum: ["user"],
             default: "user"
         },
         googleId: {
@@ -57,7 +57,7 @@ const userSchema = new Schema(
 userSchema.pre("save", async function (next) {
     if(!this.isModified("password")) return next();
 
-    this.password = await bcrypt.hash(this.password, 10)
+    this.password = bcrypt.hash(this.password, 10)
     next()
 })
 

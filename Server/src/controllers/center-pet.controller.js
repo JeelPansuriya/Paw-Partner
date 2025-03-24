@@ -54,13 +54,21 @@ const updateAdoptionCenterPet = asyncHandler(async (req, res) => {
         throw new ApiError(403, "Unauthorized");
     }
 
+    if(req.file) {
+        const imageUrl = await uploadOnCloudinary(req.file.path);
+        if(imageUrl == pet.imageUrl) {
+            throw new ApiError(500, "Error uploading image to cloudinary")
+        }
+    }
+
     const updatedPet = await AdoptionCenterPet.findByIdAndUpdate(petId, {
         name,
         type,
         breed,
         age,
         gender,
-        description
+        description,
+        imageUrl: imageUrl
     }, { new: true });
 
     res.status(200).json(
@@ -69,7 +77,7 @@ const updateAdoptionCenterPet = asyncHandler(async (req, res) => {
 });
 
 const getAdoptionCenterPets = asyncHandler(async (req, res) => {
-    const { centerId } = req.params;
+    const centerId = req.params._id;
     const pets = await AdoptionCenterPet.find({ adoptionCenter: centerId });
     return res.status(200).json(
         new ApiResponse(200, pets, "Pets fetched successfully")

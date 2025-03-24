@@ -6,6 +6,13 @@ import SignUp from './SignUp';
 import PetProfile from './PetProfile';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import AdoptionCenter from "./AdoptionCenter";
+import AdoptionCenterPets from './AdoptionCenterPets';
+import PetShop from './PetShop';
+import AdditionalInfo from './components/AdditionalInfo';
+import AdoptionCenterDashboard from './AdoptionCenterDashboard';
+import ForgotPassword from './Forgot-password';
+
 
 function AppContent() {
   const location = useLocation();
@@ -19,7 +26,14 @@ function AppContent() {
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/pet-profile" element={<PetProfile />} />
+        <Route path="/adoption-centers" element={<AdoptionCenter />} />
+        <Route path="/adoption-center-pets/:centerId" element={<AdoptionCenterPets />} />
+        <Route path="/pet-shops" element={<PetShop />} />
         <Route path="/" element={<SignIn />} />
+        <Route path="/additional-info" element={<AdditionalInfo />} />
+        <Route path="/adoption-center/dashboard" element={<AdoptionCenterDashboard />} />
+        <Route path="/forgot-password" element={<ForgotPassword/>} />
+        
       </Routes>
       {!isAuthPage && <Footer />}
     </>

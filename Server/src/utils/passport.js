@@ -1,12 +1,12 @@
-// filepath: /c:/Users/jeeli/VS Code/Paw-Partner/Server/src/config/passport.js
-import passport from 'passport';
-import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import { User } from '../models/user.model.js';
+import passport from "passport";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import { User } from "../models/user.model.js";
+import { generateAccessAndRefereshTokens } from "../controllers/user.controller.js";
 
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "/auth/google/callback"
+    callbackURL: "http://localhost:8000/api/v1/users/auth/google/callback"
   },
   async (accessToken, refreshToken, profile, done) => {
     try {
@@ -17,19 +17,23 @@ passport.use(new GoogleStrategy({
           googleId: profile.id,
           username: profile.displayName,
           email: profile.emails[0].value,
-          role: 'user'
+          role: "user"
         });
       }
 
-      done(null, user);
+      // Generate JWT token
+      const { accessToken: newAccessToken, refreshToken: newRefreshToken } = await generateAccessAndRefereshTokens(user._id);
+      user.refreshToken = newRefreshToken;
+      await user.save({ validateBeforeSave: false });
+      return done(null, { user, accessToken: newAccessToken });
     } catch (error) {
-      done(error, false);
+      return done(error, false);
     }
   }
 ));
 
-passport.serializeUser((user, done) => {
-  done(null, user.id);
+passport.serializeUser((data, done) => {
+  done(null, data.user.id);
 });
 
 passport.deserializeUser(async (id, done) => {
